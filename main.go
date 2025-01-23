@@ -15,7 +15,6 @@ func main() {
 
 	config.LoadEnvs()
 	config.ConnectMysql()
-	println(config.DBUser)
 
 	log.Fatal(http.ListenAndServe(":5000", r))
 

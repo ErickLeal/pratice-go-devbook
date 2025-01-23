@@ -1,0 +1,32 @@
+services:
+  go-devbook:
+    image: golang:latest
+    container_name: go-devbook
+    command: tail -f /dev/null
+    volumes:
+      - ./:/go/src/app
+    working_dir: /go/src/app
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    volumes:
+      - mysql-data-devbook:/var/lib/mysql
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data-devbook:
