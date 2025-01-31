@@ -4,8 +4,8 @@ import (
 	"api/app/models"
 	"api/app/repositories"
 	"api/config"
+	"api/utils"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -14,19 +14,28 @@ import (
 func StoreUser(w http.ResponseWriter, r *http.Request) {
 	request, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("Error to read StoreUser request body")
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "Invalid json format",
+			"error":   err.Error(),
+		})
 		return
 	}
 
 	var user models.User
 	if err = json.Unmarshal(request, &user); err != nil {
-		fmt.Println("Error to Unmarshal user")
+		utils.JSONResponse(w, http.StatusUnprocessableEntity, map[string]interface{}{
+			"message": "Failed to read payload",
+			"error":   err.Error(),
+		})
 		return
 	}
 
 	db, err := config.ConnectMysql()
 	if err != nil {
-		log.Fatal("error to connect mysql")
+		utils.JSONResponse(w, http.StatusInternalServerError, map[string]interface{}{
+			"message": "Unexpected error",
+		})
+		log.Println("error to connect mysql - ", err)
 		return
 	}
 	defer db.Close()
@@ -34,11 +43,17 @@ func StoreUser(w http.ResponseWriter, r *http.Request) {
 	repo := repositories.NewUserRepository(db)
 	user.ID, err = repo.Create(user)
 	if err != nil {
-		log.Fatal("error to create in mysql", err)
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "Error to create user",
+			"error":   err.Error(),
+		})
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("creating usesr %d", user.ID)))
+	utils.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+		"message": "User created successfully",
+		"user_id": user.ID,
+	})
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
