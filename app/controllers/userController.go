@@ -48,15 +48,97 @@ func StoreUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("listing usesr"))
+	users, err := services.ListAllUsers()
+
+	if err != nil {
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "error to list users",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	usersResponse := make([]models.UserResponse, len(users))
+	for i, user := range users {
+		usersResponse[i] = user.ToResponse()
+	}
+
+	utils.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+		"message": "Success!",
+		"user":    usersResponse,
+	})
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("updating user"))
+	urlVars := mux.Vars(r)
+
+	userID, err := strconv.ParseUint(urlVars["id"], 10, 64)
+	if err != nil {
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "invalid user id",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	var userRequest models.UserUpdateRequest
+
+	err = json.NewDecoder(r.Body).Decode(&userRequest)
+	if err != nil {
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "Invalid json format",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	validationErrors := utils.ValidateStuctRequest(userRequest)
+	if len(validationErrors) > 0 {
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"errors": validationErrors,
+		})
+		return
+	}
+
+	user, err := services.UpdateUser(uint64(userID), userRequest)
+
+	if err != nil {
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "error to update user",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	utils.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+		"message": "User updated!",
+		"user":    user.ToResponse(),
+	})
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("deleting user"))
+	urlVars := mux.Vars(r)
+
+	userID, err := strconv.ParseUint(urlVars["id"], 10, 64)
+	if err != nil {
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "invalid user id",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	err = services.DeleteUser(uint64(userID))
+
+	if err != nil {
+		utils.JSONResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"message": "error to delete user",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	utils.JSONResponse(w, http.StatusNoContent, nil)
 }
 
 func ShowUser(w http.ResponseWriter, r *http.Request) {

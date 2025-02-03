@@ -8,9 +8,11 @@ import (
 )
 
 func JSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
+	if data != nil {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(data)
+	}
 	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(data)
 }
 
 var validate = validator.New()
