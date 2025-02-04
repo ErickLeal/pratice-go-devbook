@@ -4,7 +4,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func InitializeRoutes() *mux.Router {
+var router *mux.Router
+
+func GetRouter() *mux.Router {
+
+	if router == nil {
+		router = initializeRoutes()
+	}
+	return router
+}
+
+func initializeRoutes() *mux.Router {
 	router := mux.NewRouter()
 
 	InitUserRoutes(router)

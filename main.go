@@ -7,10 +7,9 @@ import (
 )
 
 func main() {
-	r := router.InitializeRoutes()
+	r := router.GetRouter()
 
 	config.LoadEnvs()
-	config.ConnectMysql()
 
 	http.ListenAndServe(":8080", r)
 }

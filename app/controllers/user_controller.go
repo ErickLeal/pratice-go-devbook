@@ -164,7 +164,7 @@ func ShowUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.JSONResponse(w, http.StatusCreated, map[string]interface{}{
-		"message": "Success!",
+		"message": "Success!!",
 		"user":    user.ToResponse(),
 	})
 }
