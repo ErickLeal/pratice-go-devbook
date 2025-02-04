@@ -8,20 +8,28 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 	"testing"
 )
 
-func TestCreateUser(t *testing.T) {
+func TestMain(m *testing.M) {
 	config.LoadEnvs()
-	db, err := config.ConnectDatabase()
-	if err != nil {
-		t.Fatalf("Erro ao conectar ao banco de dados: %v", err)
-	}
-	err = tests.RunMigrations(db)
+
+	code := m.Run()
+
+	os.Exit(code)
+}
+
+func setupTest(t *testing.T) {
+	err := tests.RunMigrations()
 	if err != nil {
 		t.Fatalf("Erro ao rodar migrações: %v", err)
 	}
 
+}
+
+func TestCreateUser(t *testing.T) {
+	setupTest(t)
 	user := models.UserCreateRequest{
 		Name:     "Name Test",
 		Nick:     "Nick Test",
@@ -44,7 +52,7 @@ func TestCreateUser(t *testing.T) {
 	println("responseData")
 	println(string(responseData))
 
-	err = tests.CleanDb(db)
+	err = tests.CleanDb()
 	if err != nil {
 		t.Fatalf("Erro to clean db: %v", err)
 	}
@@ -52,14 +60,10 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestListUsers(t *testing.T) {
-	config.LoadEnvs()
-	db, err := config.ConnectDatabase()
+	setupTest(t)
+	err := tests.CreateUser()
 	if err != nil {
-		t.Fatalf("Erro ao conectar ao banco de dados: %v", err)
-	}
-	err = tests.RunMigrations(db)
-	if err != nil {
-		t.Fatalf("Erro ao rodar migrações: %v", err)
+		t.Fatalf("Erro ao criar user: %v", err)
 	}
 
 	req, err := http.NewRequest("GET", "/users", nil)

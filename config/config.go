@@ -38,6 +38,7 @@ func getProjectRoot() string {
 }
 
 func LoadEnvs() {
+	println("LOADING ENV")
 	envFile := filepath.Join(RootDir, ".env")
 	if flag.Lookup("test.v") != nil {
 		envFile = filepath.Join(RootDir, ".env.testing")

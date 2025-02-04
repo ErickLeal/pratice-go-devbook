@@ -3,8 +3,8 @@ package tests
 import (
 	"api/app/router"
 	"api/config"
-	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -29,7 +29,12 @@ func MakeRequest(t *testing.T, request *http.Request) *httptest.ResponseRecorder
 	return response
 }
 
-func RunMigrations(db *sql.DB) error {
+func RunMigrations() error {
+	db, err := config.ConnectDatabase()
+	if err != nil {
+		log.Println("error to connect database - ", err)
+	}
+
 	file := filepath.Join(config.RootDir, "migrations/sqlite")
 
 	if err := goose.SetDialect("sqlite3"); err != nil {
@@ -43,7 +48,12 @@ func RunMigrations(db *sql.DB) error {
 	return nil
 }
 
-func CleanDb(db *sql.DB) error {
+func CleanDb() error {
+	db, err := config.ConnectDatabase()
+	if err != nil {
+		log.Println("error to connect database - ", err)
+	}
+
 	file := filepath.Join(config.RootDir, "migrations/sqlite")
 
 	if err := goose.SetDialect("sqlite3"); err != nil {
@@ -52,6 +62,28 @@ func CleanDb(db *sql.DB) error {
 
 	if err := goose.Down(db, file); err != nil {
 		return fmt.Errorf("error to clean db: %w", err)
+	}
+
+	return nil
+}
+
+func CreateUser() error {
+	db, err := config.ConnectDatabase()
+	if err != nil {
+		log.Println("error to connect database - ", err)
+	}
+
+	statement, err := db.Prepare(
+		"INSERT INTO users (name, nick, email, password) VALUES ('name', 'nick', 'email', 'password')",
+	)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec()
+	if err != nil {
+		return err
 	}
 
 	return nil

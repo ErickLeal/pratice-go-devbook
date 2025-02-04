@@ -14,7 +14,6 @@ func CreateUser(userRequest models.UserCreateRequest) (models.UserModel, error) 
 		log.Println("error to connect database - ", err)
 		return models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 	userID, err := repo.CreateUser(userRequest)
@@ -38,7 +37,6 @@ func GetUserById(userID uint64) (models.UserModel, error) {
 		log.Println("error to connect database - ", err)
 		return models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 
@@ -57,7 +55,6 @@ func UpdateUser(userID uint64, userRequest models.UserUpdateRequest) (models.Use
 		log.Println("error to connect database - ", err)
 		return models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 
@@ -81,7 +78,6 @@ func DeleteUser(userID uint64) error {
 		log.Println("error to connect database - ", err)
 		return err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 
@@ -100,7 +96,6 @@ func ListAllUsers() ([]models.UserModel, error) {
 		log.Println("error to connect database - ", err)
 		return []models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 

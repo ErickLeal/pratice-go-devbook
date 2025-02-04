@@ -10,15 +10,25 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var db *sql.DB
+
 func ConnectDatabase() (*sql.DB, error) {
+	if db != nil {
+		return db, nil
+	}
+
+	var err error
+
 	switch DBConnection {
 	case "mysql":
-		return connectMysql()
+		db, err = connectMysql()
 	case "sqlite":
-		return connectSQLite()
+		db, err = connectSQLite()
 	default:
-		return nil, fmt.Errorf("database connection for: %s, is not configured", DBConnection)
+		err = fmt.Errorf("database connection for: %s, is not configured", DBConnection)
 	}
+
+	return db, err
 }
 
 func connectMysql() (*sql.DB, error) {
