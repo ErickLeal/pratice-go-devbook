@@ -8,7 +8,6 @@ import (
 )
 
 func CreateUser(userRequest models.UserCreateRequest) (models.UserModel, error) {
-	println("CRETETETEEEE")
 	db, err := config.ConnectDatabase()
 	if err != nil {
 		log.Println("error to connect database - ", err)
@@ -20,8 +19,7 @@ func CreateUser(userRequest models.UserCreateRequest) (models.UserModel, error) 
 	if err != nil {
 		return models.UserModel{}, err
 	}
-	println("userID")
-	println(userID)
+
 	createdUser, err := repo.GetUserById(uint64(userID))
 	if err != nil {
 		return models.UserModel{}, err

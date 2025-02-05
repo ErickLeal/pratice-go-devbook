@@ -1,6 +1,7 @@
 package tests
 
 import (
+	models "api/app/models/user"
 	"api/app/router"
 	"api/config"
 	"fmt"
@@ -29,10 +30,11 @@ func MakeRequest(t *testing.T, request *http.Request) *httptest.ResponseRecorder
 	return response
 }
 
-func RunMigrations() error {
+func RunMigrations() {
 	db, err := config.ConnectDatabase()
 	if err != nil {
 		log.Println("error to connect database - ", err)
+		panic(err)
 	}
 
 	file := filepath.Join(config.RootDir, "migrations/sqlite")
@@ -42,10 +44,9 @@ func RunMigrations() error {
 	}
 
 	if err := goose.Up(db, file); err != nil {
-		return fmt.Errorf("failed to run migrations: %w", err)
+		log.Println("failed to run migrations: %w", err)
+		panic(err)
 	}
-
-	return nil
 }
 
 func CleanDb() error {
@@ -67,7 +68,7 @@ func CleanDb() error {
 	return nil
 }
 
-func CreateUser() error {
+func CreateUser() (models.UserModel, error) {
 	db, err := config.ConnectDatabase()
 	if err != nil {
 		log.Println("error to connect database - ", err)
@@ -77,14 +78,35 @@ func CreateUser() error {
 		"INSERT INTO users (name, nick, email, password) VALUES ('name', 'nick', 'email', 'password')",
 	)
 	if err != nil {
-		return err
+		return models.UserModel{}, err
 	}
 	defer statement.Close()
 
-	_, err = statement.Exec()
+	result, err := statement.Exec()
 	if err != nil {
-		return err
+		return models.UserModel{}, err
 	}
 
-	return nil
+	lastID, _ := result.LastInsertId()
+
+	return FindUserById(uint64(lastID))
+}
+
+func FindUserById(ID uint64) (models.UserModel, error) {
+	db, err := config.ConnectDatabase()
+	if err != nil {
+		log.Println("error to connect database - ", err)
+	}
+
+	var user models.UserModel
+	err = db.QueryRow(
+		"SELECT id, name, nick, email, created_at FROM users WHERE id = ?",
+		ID,
+	).Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt)
+
+	if err != nil {
+		return models.UserModel{}, err
+	}
+
+	return user, nil
 }

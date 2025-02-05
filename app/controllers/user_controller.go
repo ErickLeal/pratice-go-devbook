@@ -63,9 +63,9 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 		usersResponse[i] = user.ToResponse()
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+	utils.JSONResponse(w, http.StatusOK, map[string]interface{}{
 		"message": "Success!",
-		"user":    usersResponse,
+		"data":    usersResponse,
 	})
 }
 
@@ -110,7 +110,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+	utils.JSONResponse(w, http.StatusOK, map[string]interface{}{
 		"message": "User updated!",
 		"user":    user.ToResponse(),
 	})
@@ -163,7 +163,7 @@ func ShowUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, map[string]interface{}{
+	utils.JSONResponse(w, http.StatusOK, map[string]interface{}{
 		"message": "Success!!",
 		"user":    user.ToResponse(),
 	})
