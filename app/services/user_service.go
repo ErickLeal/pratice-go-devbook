@@ -8,13 +8,11 @@ import (
 )
 
 func CreateUser(userRequest models.UserCreateRequest) (models.UserModel, error) {
-
-	db, err := config.ConnectMysql()
+	db, err := config.ConnectDatabase()
 	if err != nil {
-		log.Println("error to connect mysql - ", err)
+		log.Println("error to connect database - ", err)
 		return models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 	userID, err := repo.CreateUser(userRequest)
@@ -32,12 +30,11 @@ func CreateUser(userRequest models.UserCreateRequest) (models.UserModel, error) 
 
 func GetUserById(userID uint64) (models.UserModel, error) {
 
-	db, err := config.ConnectMysql()
+	db, err := config.ConnectDatabase()
 	if err != nil {
-		log.Println("error to connect mysql - ", err)
+		log.Println("error to connect database - ", err)
 		return models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 
@@ -51,12 +48,11 @@ func GetUserById(userID uint64) (models.UserModel, error) {
 
 func UpdateUser(userID uint64, userRequest models.UserUpdateRequest) (models.UserModel, error) {
 
-	db, err := config.ConnectMysql()
+	db, err := config.ConnectDatabase()
 	if err != nil {
-		log.Println("error to connect mysql - ", err)
+		log.Println("error to connect database - ", err)
 		return models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 
@@ -75,12 +71,11 @@ func UpdateUser(userID uint64, userRequest models.UserUpdateRequest) (models.Use
 
 func DeleteUser(userID uint64) error {
 
-	db, err := config.ConnectMysql()
+	db, err := config.ConnectDatabase()
 	if err != nil {
-		log.Println("error to connect mysql - ", err)
+		log.Println("error to connect database - ", err)
 		return err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 
@@ -94,12 +89,11 @@ func DeleteUser(userID uint64) error {
 
 func ListAllUsers() ([]models.UserModel, error) {
 
-	db, err := config.ConnectMysql()
+	db, err := config.ConnectDatabase()
 	if err != nil {
-		log.Println("error to connect mysql - ", err)
+		log.Println("error to connect database - ", err)
 		return []models.UserModel{}, err
 	}
-	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
 
