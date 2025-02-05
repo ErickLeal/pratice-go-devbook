@@ -30,7 +30,7 @@ func setupTest(t *testing.T) {
 
 }
 
-func TestCreateUser(t *testing.T) {
+func TestStoreUser(t *testing.T) {
 	setupTest(t)
 	user := models.UserCreateRequest{
 		Name:     "Name Test",
